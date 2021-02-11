@@ -1,4 +1,4 @@
-Dobble Classification using Vitis AI and TensorFlow
+# Dobble Classification using Vitis AI and TensorFlow
 -----------------------
 
 ## Acknowledgment
@@ -69,6 +69,10 @@ The host machine has several requirements that need to be met before we begin. Y
   + Optionally, a GPU card suitable for training (a trained checkpoint is provided for those who wish to skip the training step).
 
   + The environment is supposed to be ready at this step. If not, please follow the setup instructions provided in [Module_2](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_2) and in [Module_3](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_3).
+
+This project will run on the Vitis-AI 1.3 pre-built SD card image for Ultra96-V2, which can be found here:
+[Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
+
 
 ### Downloading the Design and Setting up the Workspace
 
@@ -328,6 +332,25 @@ The approximate throughput (in frames/sec) for various batch sizes is shown belo
 |    3    |      100.74      |
 |    4    |       97.45      |
 |    5    |       98.38      |
+
+
+# References
+
+## Vitis-AI 1.3 Flow for Avnet Platforms
+This guide provides detailed instructions for targeting the Xilinx Vitis-AI 1.3 flow for Avnet Vitis 2020.2 platforms.
+
+[Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
+
+## The Dobble Challenge
+Getting started with machine learning for the Dobble card game using TensorFlow.
+
+[The Dobble Challenge](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c)
+
+## Training The Dobble Challenge
+Train a machine learning model that can play Dobble (Spot-It) against you. This is part two of The Dobble Challenge.
+
+[Training The Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
+
 
 
 <p align="center"><sup>Copyright&copy; 2021 Avnet</sup></p>
