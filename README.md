@@ -49,11 +49,11 @@ The dataset contains ~500 images for training and ~1200 images for testing.
 
 A more detailed description of the dataset can be found on hackster.io:
 
-[The Dobble Challenge](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c)
+[Hackster - The Dobble Challenge](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c)
 
 A second project describes how to synthetically augment the dataset and train a classification model:
 
-[Training the Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
+[Hackster - Training the Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
 
 
 There are a total of 58 mutually exclusive classes (or labels), each corresponding to a unique card.
@@ -75,7 +75,8 @@ The host machine has several requirements that need to be met before we begin. Y
   + The environment is supposed to be ready at this step. If not, please follow the setup instructions provided in [Module_2](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_2) and in [Module_3](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_3).
 
 This project will run on the Vitis-AI 1.3 pre-built SD card image for Ultra96-V2, which can be found here:
-[Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
+
+[Hackster - Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
 
 
 ### Downloading the Design and Setting up the Workspace
@@ -164,7 +165,8 @@ To run step 1: ``source ./1_train.sh``
 The training process is performed by the dobble_tutorial.py Python script.
 
 For more information on the training, please refer to the following hackster.io project:
-[Training the Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
+
+[Hackster - Training the Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
 
 
 After training has finished, the trained Keras checkpoint will be found in the ./files/build/keras_model folder as an HDF5 file called k_model.h5.
@@ -343,7 +345,7 @@ The approximate throughput (in frames/sec) for various batch sizes is shown belo
 ## Vitis-AI 1.3 Flow for Avnet Platforms
 This guide provides detailed instructions for targeting the Xilinx Vitis-AI 1.3 flow for Avnet Vitis 2020.2 platforms.
 
-[Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
+[Hackster - Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
 
 ## The Dobble Dataset
 The Dobble dataset, available on kaggle:
@@ -353,12 +355,12 @@ The Dobble dataset, available on kaggle:
 ## The Dobble Challenge
 Getting started with machine learning for the Dobble card game using TensorFlow.
 
-[The Dobble Challenge](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c)
+[Hackster - The Dobble Challenge](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c)
 
 ## Training The Dobble Challenge
 Train a machine learning model that can play Dobble (Spot-It) against you. This is part two of The Dobble Challenge.
 
-[Training The Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
+[Hackster - Training The Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
 
 
 
