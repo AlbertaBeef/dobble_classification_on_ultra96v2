@@ -32,10 +32,15 @@ The Dobble dataset was created by the authors of this project, and have been mad
 [Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
 
 Download the dataset archive (dobble-card-images.zip) and extract to the following destination:
+```shell
 <path_to_dobble_design>/files
+```
+
 Rename the directory and ensure the dobble dataset is located as follows:
+```shell
 <path_to_dobble_design>/files/dobble_dataset
 <path_to_dobble_design>/files/dobble_dataset/
+```
 
 The dataset contains ~500 images for training and ~1200 images for testing.
 
@@ -75,7 +80,7 @@ As part of the [Setting up the host](https://www.xilinx.com/html_docs/vitis_ai/1
 
 
 ```shell
-# navigate to densenet tutorial folder
+# navigate to the dobble tutorial folder
 cd <path_to_dobble_design>/files
 
 # to start the CPU docker
@@ -141,7 +146,7 @@ The 0_setenv.sh script also activates the 'vitis-ai-tensorflow' TensorFlow conda
 
 ### Step 1: Training Your Model
 
-:pushpin: Training takes a considerable time, between 8-12 hours depending on the GPU. You can either:
+:pushpin: Training takes a considerable time, between 8-12 hours depending on the GPU. You can alternatively:
 
 + Skip the training phase altogether and use the pretrained Keras checkpoint available in keras_model.zip. In this case, you can copy the k_model.h5 file inside this zip archive to the ./files/build/keras_model folder. You can then skip the remaining parts of Step 1 and go directly to Step 2.
 
@@ -305,7 +310,7 @@ Correct: 489 Wrong: 11 Accuracy: 0.978
 
 ## Accuracy & Performance Results
 
-The floating-point post-training and frozen graph evaluations can be compared to the INT8 post-quantization model and actual results obtained by the hardware model running on the ZCU104 board:
+The floating-point post-training and frozen graph evaluations can be compared to the INT8 post-quantization model and actual results obtained by the hardware model running on the Ultra96-V2 board:
 
 
 | Post-training (Float) | Frozen Graph (Float) | Quantized Model (INT8) | Hardware model (INT8) |

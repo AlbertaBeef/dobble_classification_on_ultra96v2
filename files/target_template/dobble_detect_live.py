@@ -33,6 +33,8 @@ import time
 import sys
 import argparse
 
+import dobble_utils as db
+
 # Parameters (tweaked for video)
 dir = './dobble_dataset'
 
@@ -157,29 +159,9 @@ inputShape = inputTensors[0].dims
 outputShape = outputTensors[0].dims
 
 # Load reference images
-def capture_card_filenames(directory_name):
-    subdirs = ['{}/{}'.format(directory_name,i) for i in os.listdir(directory_name) ]
-    cards = []
-    for i,subdir in enumerate(subdirs):
-        cards += ['{}/{}'.format(subdir,i) for i in os.listdir(subdir)]
-    del subdirs
-    return cards
-
-def read_and_process_image(list_of_images):
-    X = []
-    y = []
-    
-    for i,image in enumerate(list_of_images):
-        X.append(cv2.resize(cv2.imread(image,cv2.IMREAD_COLOR),(0,0),fx=0.5,fy=0.5,interpolation=cv2.INTER_CUBIC))
-        y_str = image.split('/')
-        y.append(int(y_str[len(y_str)-2]))
-    return X,y
-
-
 train1_dir = dir+'/dobble_deck01_cards_57'
-train1_cards = capture_card_filenames(train1_dir)
-train1_X,train1_y = read_and_process_image(train1_cards)
-
+train1_cards = db.capture_card_filenames(train1_dir)
+train1_X,train1_y = db.read_and_process_image(train1_cards,72,72)
 
 # Load mapping/symbol databases
 import csv
@@ -313,18 +295,19 @@ while True:
                         card_id  = np.argmax(card_y[0])
                         cv2.putText(output,str(card_id),(x1,y1-b),text_fontType,text_fontSize,text_color,text_lineSize,text_lineType)
                         
-                        if displayReference:
-                            reference_img = train1_X[card_id-1]
-                            reference_shape = reference_img.shape
-                            reference_x = reference_shape[0]
-                            reference_y = reference_shape[1]
-                            output[y1:y1+reference_y,x1:x1+reference_x,:] = reference_img
-                        
                         # Add ROI to card/bbox lists
                         if card_id > 0:
                             circle_list.append((cx,cy,r))
                             bbox_list.append((x1,y1,x2,y2))
                             card_list.append(card_id)
+
+                            if displayReference:
+                                reference_img = train1_X[card_id-1]
+                                reference_shape = reference_img.shape
+                                reference_x = reference_shape[0]
+                                reference_y = reference_shape[1]
+                                output[y1:y1+reference_y,x1:x1+reference_x,:] = reference_img
+                        
                     except:
                         print("ERROR : Exception occured during dobble classification ...")
 

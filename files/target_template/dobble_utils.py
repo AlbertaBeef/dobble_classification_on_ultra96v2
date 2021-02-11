@@ -11,7 +11,6 @@
 #   gc
 #   csv
 #   collections
-#   keras
 
 
 import numpy as np
@@ -22,8 +21,6 @@ import gc
 
 import csv
 from collections import OrderedDict
-
-from keras import models
 
 #
 # Capture images/labels from data set for training and testing
@@ -117,20 +114,3 @@ def load_card_symbol_mapping( mapping_filename ):
     
     return mapping
 
-#
-# Test Model Accuracy
-#
-
-def test_accuracy(model, test_n, test_X, test_y):
-    ntotal = 0
-    ncorrect = 0
-    predictions = model.predict(test_X)
-    for i in range(test_n):
-        y = test_y[i,:]
-        pred = predictions[i,:]
-        max_y = np.argmax(y)
-        max_pred = np.argmax(pred)
-        ntotal += 1
-        if max_pred == max_y:
-            ncorrect += 1
-    return ncorrect/ntotal
