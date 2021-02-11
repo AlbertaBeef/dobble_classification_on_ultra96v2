@@ -164,33 +164,8 @@ train1_cards = db.capture_card_filenames(train1_dir)
 train1_X,train1_y = db.read_and_process_image(train1_cards,72,72)
 
 # Load mapping/symbol databases
-import csv
-from collections import OrderedDict
-
-symbols = OrderedDict()
-with open(dir+'/dobble_symbols.txt','r') as file:
-    reader = csv.reader(file)
-    for row in reader:
-        #print(row)
-        if row[0] == '\ufeff1': # wierd character occuring on linux
-            row[0] = '1'
-        symbol_id = int(row[0])
-        symbol_label = row[1]
-        symbols[symbol_id] = symbol_label
-
-mapping = OrderedDict()
-with open(dir+'/dobble_card_symbol_mapping.txt','r') as file:
-    reader = csv.reader(file)
-    for row in reader:
-        id = row[0]
-        if row[0] == '\ufeff1': # wierd character occuring on linux
-            row[0] = '1'
-        card_id = int(row[0])
-        card_mapping = []
-        for i,val in enumerate(row[1:]):
-            if val=='1':
-                card_mapping.append( i+1 )
-        mapping[card_id] = card_mapping
+symbols = db.load_symbol_labels(dir+'/dobble_symbols.txt')
+mapping = db.load_card_symbol_mapping(dir+'/dobble_card_symbol_mapping.txt')
 
 print("================================")
 print("Dobble Classification Demo:")
@@ -383,7 +358,7 @@ while True:
 
 
 
-i# Stop the timer and display FPS information
+# Stop the timer and display FPS information
 fps.stop()
 print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
 print("[INFO] elapsed FPS: {:.2f}".format(fps.fps()))
