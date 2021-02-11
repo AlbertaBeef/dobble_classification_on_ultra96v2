@@ -80,13 +80,12 @@ def load_symbol_labels( symbol_filename ):
     symbols = OrderedDict()
     with open(symbol_filename,'r') as file:
         reader = csv.reader(file)
+        symbol_id = 1
         for row in reader:
-            #print(row)
-            if row[0] == '\ufeff1': # wierd character occuring on linux
-                row[0] = '1'
-            symbol_id = int(row[0])
             symbol_label = row[1]
             symbols[symbol_id] = symbol_label
+            #
+            symbol_id = symbol_id + 1
     return symbols
     
 #
@@ -97,16 +96,15 @@ def load_card_symbol_mapping( mapping_filename ):
     mapping = OrderedDict()
     with open(mapping_filename,'r') as file:
         reader = csv.reader(file)
+        card_id = 1
         for row in reader:
-            id = row[0]
-            if row[0] == '\ufeff1': # wierd character occuring on linux
-                row[0] = '1'
-            card_id = int(row[0])
             card_mapping = []
             for i,val in enumerate(row[1:]):
                 if val=='1':
                     card_mapping.append( i+1 )
             mapping[card_id] = card_mapping
+            #
+            card_id = card_id + 1
     
     return mapping
 
