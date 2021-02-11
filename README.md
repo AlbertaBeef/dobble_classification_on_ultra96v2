@@ -4,6 +4,7 @@
 ## Acknowledgment
 
 This implementation is based on the DenseNet example from Xilinx:
+
 [Module 4 - CIFAR10 Classification using Vitis AI and TensorFlowDesign Tutorials](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_4)
 
 
@@ -29,6 +30,7 @@ We will run the following steps:
 ## The Dobble Dataset
 
 The Dobble dataset was created by the authors of this project, and have been made available on kaggle:
+
 [Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
 
 Download the dataset archive (dobble-card-images.zip) and extract to the following destination:
@@ -46,9 +48,11 @@ The dataset contains ~500 images for training and ~1200 images for testing.
 
 
 A more detailed description of the dataset can be found on hackster.io:
+
 [The Dobble Challenge](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c)
 
 A second project describes how to synthetically augment the dataset and train a classification model:
+
 [Training the Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
 
 
@@ -340,6 +344,11 @@ The approximate throughput (in frames/sec) for various batch sizes is shown belo
 This guide provides detailed instructions for targeting the Xilinx Vitis-AI 1.3 flow for Avnet Vitis 2020.2 platforms.
 
 [Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
+
+## The Dobble Dataset
+The Dobble dataset, available on kaggle:
+
+[Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
 
 ## The Dobble Challenge
 Getting started with machine learning for the Dobble card game using TensorFlow.
