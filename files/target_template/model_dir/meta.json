@@ -1,0 +1,8 @@
+{
+    "lib": "libvart-dpu-runner.so",
+    "filename": "dobble.xmodel",
+    "kernel": [
+        "subgraph_conv2d_1\/Conv2D"
+    ],
+    "target": "DPUCZDX8G_ISA0_B2304_MAX_BG2"
+}
