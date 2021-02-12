@@ -17,15 +17,26 @@
 
 conda activate vitis-ai-tensorflow
 
+
+# target board (Ultra96-V2)
+export BOARD=u96v2_sbc_base
+export DPU_CONFIG=B2304_LR
+export ARCH=./${DPU_CONFIG}/arch.json
+
+# target board (UltraZed-EV Starter Kit)
+#export BOARD=uz7ev_evcc_base
+#export DPU_CONFIG=B4096_LR
+#export ARCH=./${DPU_CONFIG}/arch.json
+
 # folders
 export BUILD=./build
 export TARGET_TEMPLATE=./target_template
-export TARGET=${BUILD}/target
+export TARGET=${BUILD}/target_${DPU_CONFIG}
 export LOG=${BUILD}/logs
 export TB_LOG=${BUILD}/tb_logs
 export KERAS=${BUILD}/keras_model
 export FREEZE=${BUILD}/freeze
-export COMPILE=${BUILD}/compile/
+export COMPILE=${BUILD}/compile_${DPU_CONFIG}
 export QUANT=${BUILD}/quantize
 export TFCKPT_DIR=${BUILD}/tf_chkpt
 
@@ -40,7 +51,7 @@ export FREEZE_LOG=freeze.log
 export EVAL_FR_LOG=eval_frozen_graph.log
 export QUANT_LOG=quant.log
 export EVAL_Q_LOG=eval_quant_graph.log
-export COMP_LOG=compile.log
+export COMP_LOG=compile_${DPU_CONFIG}.log
 
 # Keras checkpoint file
 export K_MODEL=dobble_model.h5
@@ -66,12 +77,6 @@ export NET_NAME=dobble
 #export EPOCHS=160
 #export BATCHSIZE=150
 #export LEARNRATE=0.001
-
-
-# target board
-export BOARD=ULTRA96V2
-export ARCH=./B2304_LR/arch.json
-
 
 # DPU mode - best performance with DPU_MODE = normal
 export DPU_MODE=normal
