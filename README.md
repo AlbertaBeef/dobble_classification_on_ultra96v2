@@ -92,12 +92,13 @@ cd <path_to_dobble_design>/files
 
 # to start the CPU docker
 ./docker_run.sh xilinx/vitis-ai:1.3.411
+```
 
 If you have a GPU, you may prefer to use the GPU docker (which you will have to build)
+
+```shell
 # to start GPU docker
 ./docker_run.sh xilinx/vitis-ai-gpu:latest
-
-
 ```
 
 The docker container will start and you should see something like this in the terminal:
