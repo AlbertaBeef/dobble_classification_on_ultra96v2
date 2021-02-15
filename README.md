@@ -1,13 +1,6 @@
 # Dobble Classification using Vitis AI and TensorFlow
 -----------------------
 
-## Acknowledgment
-
-This implementation is based on the DenseNet example from Xilinx:
-
-[Module 4 - CIFAR10 Classification using Vitis AI and TensorFlowDesign Tutorials](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_4)
-
-
 ## Introduction
 
 This project introduces the Vitis AI TensorFlow design process and illustrates how to go from a Python description of the network model to running a compiled model on the Ultra96-V2 Development Board. 
@@ -41,7 +34,12 @@ Download the dataset archive (dobble-card-images.zip) and extract to the followi
 Rename the directory and ensure the dobble dataset is located as follows:
 ```shell
 <path_to_dobble_design>/files/dobble_dataset
-<path_to_dobble_design>/files/dobble_dataset/
+<path_to_dobble_design>/files/dobble_dataset/dobble_deck01_cards_57
+...
+<path_to_dobble_design>/files/dobble_dataset/dobble_deck10_cards_55
+<path_to_dobble_design>/files/dobble_dataset/dobble_test01_cards
+<path_to_dobble_design>/files/dobble_dataset/dobble_test02_cards
+...
 ```
 
 The dataset contains ~500 images for training and ~1200 images for testing.
@@ -338,6 +336,14 @@ The approximate throughput (in frames/sec) for various batch sizes is shown belo
 |    3    |      100.74      |
 |    4    |       97.45      |
 |    5    |       98.38      |
+
+
+## Acknowledgment
+
+This implementation is based on the DenseNet example from Xilinx:
+
+[Module 4 - CIFAR10 Classification using Vitis AI and TensorFlowDesign Tutorials](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_4)
+
 
 
 # References
