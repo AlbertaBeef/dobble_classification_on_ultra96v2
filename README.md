@@ -26,21 +26,6 @@ The Dobble dataset was created by the authors of this project, and have been mad
 
 [Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
 
-Download the dataset archive (dobble-card-images.zip) and extract to the following destination:
-```shell
-<path_to_dobble_design>/files
-```
-
-Rename the directory and ensure the dobble dataset is located as follows:
-```shell
-<path_to_dobble_design>/files/dobble_dataset
-<path_to_dobble_design>/files/dobble_dataset/dobble_deck01_cards_57
-...
-<path_to_dobble_design>/files/dobble_dataset/dobble_deck10_cards_55
-<path_to_dobble_design>/files/dobble_dataset/dobble_test01_cards
-<path_to_dobble_design>/files/dobble_dataset/dobble_test02_cards
-...
-```
 
 The dataset contains ~500 images for training and ~1200 images for testing.
 
@@ -150,6 +135,30 @@ The 0_setenv.sh script also activates the 'vitis-ai-tensorflow' TensorFlow conda
 
 ```shell
 (vitis-ai-tensorflow) Vitis-AI /workspace$
+```
+
+### Step 0: Download the Dobble dataset from Kaggle
+
+Download the dataset archive (dobble-card-images.zip) from Kaggle.
+
+[Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
+
+Extract the archive under the files directory:
+
+```shell
+<path_to_dobble_design>/files
+```
+
+Rename the directory and ensure the dobble dataset is located as follows:
+
+```shell
+<path_to_dobble_design>/files/dobble_dataset
+<path_to_dobble_design>/files/dobble_dataset/dobble_deck01_cards_57
+...
+<path_to_dobble_design>/files/dobble_dataset/dobble_deck10_cards_55
+<path_to_dobble_design>/files/dobble_dataset/dobble_test01_cards
+<path_to_dobble_design>/files/dobble_dataset/dobble_test02_cards
+...
 ```
 
 ### Step 1: Training Your Model
