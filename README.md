@@ -1,13 +1,6 @@
 # Dobble Classification using Vitis AI and TensorFlow
 -----------------------
 
-## Acknowledgment
-
-This implementation is based on the DenseNet example from Xilinx:
-
-[Module 4 - CIFAR10 Classification using Vitis AI and TensorFlowDesign Tutorials](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_4)
-
-
 ## Introduction
 
 This project introduces the Vitis AI TensorFlow design process and illustrates how to go from a Python description of the network model to running a compiled model on the Ultra96-V2 Development Board. 
@@ -33,16 +26,6 @@ The Dobble dataset was created by the authors of this project, and have been mad
 
 [Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
 
-Download the dataset archive (dobble-card-images.zip) and extract to the following destination:
-```shell
-<path_to_dobble_design>/files
-```
-
-Rename the directory and ensure the dobble dataset is located as follows:
-```shell
-<path_to_dobble_design>/files/dobble_dataset
-<path_to_dobble_design>/files/dobble_dataset/
-```
 
 The dataset contains ~500 images for training and ~1200 images for testing.
 
@@ -94,12 +77,13 @@ cd <path_to_dobble_design>/files
 
 # to start the CPU docker
 ./docker_run.sh xilinx/vitis-ai:1.3.411
+```
 
 If you have a GPU, you may prefer to use the GPU docker (which you will have to build)
+
+```shell
 # to start GPU docker
 ./docker_run.sh xilinx/vitis-ai-gpu:latest
-
-
 ```
 
 The docker container will start and you should see something like this in the terminal:
@@ -151,6 +135,30 @@ The 0_setenv.sh script also activates the 'vitis-ai-tensorflow' TensorFlow conda
 
 ```shell
 (vitis-ai-tensorflow) Vitis-AI /workspace$
+```
+
+### Step 0: Download the Dobble dataset from Kaggle
+
+Download the dataset archive (dobble-card-images.zip) from Kaggle.
+
+[Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
+
+Extract the archive under the files directory:
+
+```shell
+<path_to_dobble_design>/files
+```
+
+Rename the directory and ensure the dobble dataset is located as follows:
+
+```shell
+<path_to_dobble_design>/files/dobble_dataset
+<path_to_dobble_design>/files/dobble_dataset/dobble_deck01_cards_57
+...
+<path_to_dobble_design>/files/dobble_dataset/dobble_deck10_cards_55
+<path_to_dobble_design>/files/dobble_dataset/dobble_test01_cards
+<path_to_dobble_design>/files/dobble_dataset/dobble_test02_cards
+...
 ```
 
 ### Step 1: Training Your Model
@@ -338,6 +346,14 @@ The approximate throughput (in frames/sec) for various batch sizes is shown belo
 |    3    |      100.74      |
 |    4    |       97.45      |
 |    5    |       98.38      |
+
+
+## Acknowledgment
+
+This implementation is based on the DenseNet example from Xilinx:
+
+[Module 4 - CIFAR10 Classification using Vitis AI and TensorFlowDesign Tutorials](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_4)
+
 
 
 # References
