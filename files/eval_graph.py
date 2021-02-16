@@ -96,11 +96,11 @@ def main():
                     help='graph file (.pb) to be evaluated.')
     ap.add_argument('--input_node',
                     type=str,
-                    default='Reshape',
+                    default='conv2d_1_input',
                     help='input node.')
     ap.add_argument('--output_node',
                     type=str,
-                    default='dense_1/BiasAdd',
+                    default='activation_2/Softmax',
                     help='output node.')
     ap.add_argument('-b', '--batchsize',
                     type=int,

@@ -325,7 +325,7 @@ The floating-point post-training and frozen graph evaluations can be compared to
 
 | Post-training (Float) | Frozen Graph (Float) | Quantized Model (INT8) | Hardware model (INT8) |
 | :-------------------: | :------------------: | :--------------------: | :-------------------: |
-|        99.23%         |        xx.xx%        |         xx.xx%         |        97.80%         |
+|        99.23%         |        99.25%        |         99.58%         |        97.80%         |
 
 
 The approximate throughput (in frames/sec) for various batch sizes is shown below:
