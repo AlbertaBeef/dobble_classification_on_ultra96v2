@@ -8,7 +8,7 @@ In [part one](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c) of
 
 In [part two](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854), we created and augmented our Dobble Card dataset, trained a Dobble-playing machine learning model, and tested it on a real life game between human and machine!
 
-In this project, we will deploy the Dobble classifier on the Ultra96-V2 development board.
+In this project, [part three](https://www.hackster.io/aidventure/deploying-the-dobble-challenge-on-the-ultra96-v2-f5f78f), we will deploy the Dobble classifier on the Ultra96-V2 development board.
 
 We will run the following steps:
 
