@@ -3,9 +3,12 @@
 
 ## Introduction
 
-This project introduces the Vitis AI TensorFlow design process and illustrates how to go from a Python description of the network model to running a compiled model on the Ultra96-V2 Development Board. 
+Introduction
+In [part one](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c) of this tutorial, we learned about the math behind the card game Dobble and looked at the dataset.
 
-The application code in this example design is written in Python and uses the Unified APIs and VART runtime that were introduced in Vitis&trade; AI v1.3.
+In [part two](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854), we created and augmented our Dobble Card dataset, trained a Dobble-playing machine learning model, and tested it on a real life game between human and machine!
+
+In this project, [part three](https://www.hackster.io/aidventure/deploying-the-dobble-challenge-on-the-ultra96-v2-f5f78f), we will deploy the Dobble classifier on the Ultra96-V2 development board.
 
 We will run the following steps:
 
