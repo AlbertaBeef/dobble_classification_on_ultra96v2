@@ -62,7 +62,7 @@ The host machine has several requirements that need to be met before we begin. Y
 
 This project will run on the Vitis-AI 1.3 pre-built SD card image for Ultra96-V2, which can be found here:
 
-[Hackster - Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
+[Hackster - Vitis-AI 1.3 Flow for Avnet Platforms](http://avnet.me/vitis-ai-1.3-project)
 
 
 ### Downloading the Design and Setting up the Workspace
