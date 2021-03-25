@@ -1,5 +1,5 @@
 #
-# Dobble Budday - Detection/Classification (live with USB camera)
+# Dobble Buddy - Detection/Classification (live with USB camera)
 #
 # References:
 #   https://www.kaggle.com/grouby/dobble-card-images

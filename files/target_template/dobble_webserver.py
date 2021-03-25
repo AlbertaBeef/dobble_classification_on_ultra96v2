@@ -1,3 +1,13 @@
+#
+# Dobble Buddy - Flask Web Server
+#
+# References:
+#   https://www.kaggle.com/grouby/dobble-card-images
+#
+# Dependencies:
+#   flask
+#
+
 from flask import Flask,render_template,request,make_response,Response
 import numpy as np
 import cv2
