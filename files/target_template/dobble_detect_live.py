@@ -18,7 +18,7 @@ import itertools
 #from keras.models import load_model
 #from keras.utils import to_categorical
 
-from imutils.video import FPS
+#from imutils.video import FPS
 
 from ctypes import *
 #import cv2
@@ -190,7 +190,7 @@ card_list = []
 frame_count = 0
 
 # start the FPS counter
-fps = FPS().start()
+#fps = FPS().start()
 
 # init the real-time FPS counter
 rt_fps_count = 0
@@ -372,7 +372,7 @@ while True:
         break
 
     # Update the FPS counter
-    fps.update()
+    #fps.update()
 
     # Update the real-time FPS counter
     rt_fps_count = rt_fps_count + 1
@@ -387,9 +387,9 @@ while True:
 
 
 # Stop the timer and display FPS information
-fps.stop()
-print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-print("[INFO] elapsed FPS: {:.2f}".format(fps.fps()))
+#fps.stop()
+#print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+#print("[INFO] elapsed FPS: {:.2f}".format(fps.fps()))
 
 # Stop the dobble classifier
 del dpu

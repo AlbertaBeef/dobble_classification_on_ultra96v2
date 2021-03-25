@@ -28,6 +28,11 @@ export ARCH=./${DPU_CONFIG}/arch.json
 #export DPU_CONFIG=B4096_LR
 #export ARCH=./${DPU_CONFIG}/arch.json
 
+# target board (KV260 AI Kit)
+#export BOARD=kv260_smartcamera
+#export DPU_CONFIG=B3136_LR
+#export ARCH=./${DPU_CONFIG}/arch.json
+
 # folders
 export BUILD=./build
 export TARGET_TEMPLATE=./target_template

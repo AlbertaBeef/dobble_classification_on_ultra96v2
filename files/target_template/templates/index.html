@@ -1,0 +1,106 @@
+<html>
+
+<!--- Stylesheet start --->
+<style>
+.button {
+  border: none;
+  color: white;
+  padding: 5px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+.red {background-color: #f44336;}
+.green{background-color: #4CAF50;}
+
+h1{
+    font-size: 50px;
+    line-height: 1;
+}
+</style>
+
+<!--- Stylesheet end --->
+
+<!--- JQuery library to make http request --->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!--- Main javascript code --->
+<script type="text/javascript">
+
+    // Set thresholds
+    function set_threshold(type) {
+	var slider = document.getElementById(type+"_slider");
+        var value = slider.value;
+        var text = document.getElementById(type+"_value");
+	text.innerHTML = value;
+	var url = "/set_threshold/"+type+"/"+value;
+	var data = {type:value};
+        $.ajax({
+            type: "POST",
+            url: url, 
+            dataType : "json",
+            contentType : "application/json; charset=utf-8",
+            data: JSON.stringify(data),
+            success: function(data) {
+                console.log(data)
+                var json = JSON.parse(data)
+                //$( "#face_detect_thresholds" ).html("<strong>Threshold</strong>: "+type+"="+value)
+            },
+            error: function(data) 
+            {
+                console.log("Set Threshold Failed")
+            }
+        }).done(function() {
+            console.log("Set Threshold Done");
+        });
+    }
+
+    
+    // Select fps option
+    function select_fps_option(na) {
+	var checkbox = document.getElementById("enable_fps_display");
+        var value    = checkbox.checked;
+	var url  = "/set_fps_option/" + value
+	var data = {'fps':value}
+        $.ajax({
+            type: "POST",
+            url: url, 
+            dataType : "json",
+            contentType : "application/json; charset=utf-8",
+            data: JSON.stringify(data),
+            success: function(data) {
+                console.log(data)
+                var json = JSON.parse(data)
+                //$( "#dlib_option" ).html("<strong>Algorithm</strong>: "+algo)
+            },
+            error: function(data) 
+            {
+                console.log("FPS Option Selection Failed")
+            }
+        }).done(function() {
+            console.log("FPS Option Selection Done");
+        });
+    }
+
+</script>
+
+<!-- HTML body -->
+<body onload="init()">
+    <div style="text-align: center; width: 100%;">
+        <h2> Dobble Classification on Ultra96-V2</h2>
+        <div style="text-align: center; padding: 10px;">
+            <p id="circle_detect_thresholds"><strong>Circle Detection thresholds</strong> ( minRadius=<strong><span id="min_value">100</span></strong> maxRadius=<strong><span id="max_value">200</span></strong> )</p>
+            <input type="range" min"0" max="250" value="100" id="min_slider" onclick="set_threshold('min')" />
+            <input type="range" min"0" max="250" value="200" id="max_slider" onclick="set_threshold('max')" />
+            <p id="options selection">Select options</p>
+            <input type="checkbox" value="fps" id="enable_fps_display" onclick="select_fps_option('fps')" >
+            <label>FPS</label>
+        </div>
+        <img src="{{ url_for('video_feed') }}">
+        <img src="{{ url_for('power_feed') }}">
+    
+    </div>
+</html>
