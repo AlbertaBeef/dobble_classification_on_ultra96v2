@@ -1,386 +1,406 @@
-# Dobble Classification using Vitis AI and TensorFlow
------------------------
+﻿<!--
+Copyright 2022 Avnet Inc.
+ 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+ 
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Author: Mario Bergeron, Avnet Inc
+
+Based on: https://github.com/Xilinx/Vitis-AI-Tutorials/tree/master/Design_Tutorials/08-tf2_flow
+  Original Author: Mark Harvey, Xilinx Inc
+-->
+<table class="sphinxhide">
+ <tr>
+   <td align="center"><img src="https://raw.githubusercontent.com/Xilinx/Image-Collateral/main/xilinx-logo.png" width="30%"/><h1>Vitis AI Tutorials</h1>
+  </td>
+ </tr>
+ <tr>
+ <td align="center"><h1>TensorFlow2 and Vitis AI design flow</h1>
+ </td>
+ </tr>
+</table>
+
+This tutorial shows you how to compile and run the same identical design and application code on a number of different Xilinx cards. The virtually seamless transition between Edge and Cloud is made possible by the Vitis&trade; AI RunTime (VART) which is common to all target platforms and its unified APIs.
+
+
+### Current status
+
++ Tested on ZU1 Board, Ultra96-V2, and UltraZed-EV
++ Tools used: TensorFlow2.6 & Vitis AI 2.0
+
 
 ## Introduction
 
-Introduction
-In [part one](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c) of this tutorial, we learned about the math behind the card game Dobble and looked at the dataset.
-
-In [part two](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854), we created and augmented our Dobble Card dataset, trained a Dobble-playing machine learning model, and tested it on a real life game between human and machine!
-
-In this project, [part three](https://www.hackster.io/aidventure/deploying-the-dobble-challenge-on-the-ultra96-v2-f5f78f), we will deploy the Dobble classifier on the Ultra96-V2 development board.
-
 We will run the following steps:
 
-0. Download the dobble dataset from kaggle
-1. Training and evaluation of the Dobble network using TensorFlow Keras.
-2. Conversion of the HDF5 format Keras checkpoint into a TensorFlow compatible checkpoint.
-3. Removal of the training nodes and conversion of the graph variables to constants (..often referred to as 'freezing the graph').
-4. Evaluation of the frozen model using the Dobble test dataset.
-5. Quantization of the floating-point frozen model.
-6. Evaluation of the quantized model using the Dobble test dataset.
-7. Compilation of the quantized model to create the ```.xmodel``` file ready for execution on the DPU accelerator IP.
-8. Download and execution of the application on an evaluation board.
+  + Download and preparation of the Dobble dataset. Conversion of images to TFRecords.
+  + Training and evaluation of a custom CNN using TensorFlow's built-in version of Keras.
+  + Quantization of the floating-point model using the Xilinx® quantizer provided as part of Vitis AI.
+  + Evaluation of the quantized model using the dogs-vs-cats test dataset.
+  + Compilation of the quantized model for execution on the target boards.
+  + Execution of the network on the target boards with the provided Python scripts.
 
+The complete flow and the tools used at each step is shown in the figure below:
 
-## The Dobble Dataset
-
-The Dobble dataset was created by the authors of this project, and have been made available on kaggle:
-
-[Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
-
-
-The dataset contains ~500 images for training and ~1200 images for testing.
-
-
-A more detailed description of the dataset can be found on hackster.io:
-
-[Hackster - The Dobble Challenge](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c)
-
-A second project describes how to synthetically augment the dataset and train a classification model:
-
-[Hackster - Training the Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
-
-
-There are a total of 58 mutually exclusive classes (or labels), each corresponding to a unique card.
+![Complete flow](files/img/fig1.png)
 
 
 
-## Implementing the Design
+## The Kaggle Dobble Dataset
 
-This section will lead you through the steps necessary to run the design in hardware.
+The [Kaggle Dobble dataset](https://www.kaggle.com/datasets/grouby/dobble-card-images) consists of 500+ images of varying dimensions, divided into the 58 classes, 55 of which are actual playing cards. Each image is intrinsically labelled or classified by its filename, for example the image with filename *02.deck01_card02_01.jpg* is obviously of class *2*.
 
-### Preparing the Host Machine and Target Board
+The 500+ images are all resized to 224 x 224 pixels and then divided into one of the train, validation or test datasets. The size of 224 x 224 pixels was chosen as a typical classification image size.
+
+
+
+## The Convolutional Neural Network
+
+The customcnn.py script uses the Keras Functional API to describe the simple CNN. It is a fully convolutional network and has no fully connected or dense layers. There are also no pooling layers — data reduction is achieved by using convolutional layers that have strides greater than one.
+
+The CNN has deliberately been kept simple (so the expected prediction accuracy will not be much higher than approximately 95%. To reduce overfitting, batch normalization, dropout and L2 kernel regularization have been used.
+
+![Custom CNN architecture](files/img/fig2.png)
+
+
+
+The number of skip blocks and the number of filters used in each one is set by the 'filters' list argument - one skip block will be created for each element in the list.
+
+
+## Before You Begin
 
 The host machine has several requirements that need to be met before we begin. You will need:
 
-  + An Ubuntu 16.04 or 18.04 x86 host machine with internet access to download files.
+  + An x86 host machine with a supported OS and either the CPU or GPU versions of the Vitis-AI docker installed - see [System Requirements](https://github.com/Xilinx/Vitis-AI/blob/master/docs/learn/system_requirements.md).
 
-  + Optionally, a GPU card suitable for training (a trained checkpoint is provided for those who wish to skip the training step).
+  + The host machine will require Docker to be installed and the Vitis-AI CPU or GPU docker image to be built - see [Getting Started](https://github.com/Xilinx/Vitis-AI#getting-started).
 
-  + The environment is supposed to be ready at this step. If not, please follow the setup instructions provided in [Module_2](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_2) and in [Module_3](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_3).
+  + A GPU card suitable for training.
 
-This project will run on the Vitis-AI 1.3 pre-built SD card image for Ultra96-V2, which can be found here:
+  + If you plan to use the Ultra96-V2 development board, it should be prepared with the board image as per the [Vitis-AI 2.0 Flow for Avnet Vitis Platforms](https://avnet.me/vitis-ai-2.0-project) instructions.
 
-[Hackster - Vitis-AI 1.3 Flow for Avnet Platforms](http://avnet.me/vitis-ai-1.3-project)
+For more details, refer to the latest version of the *Vitis AI User Guide* ([UG1414](https://docs.xilinx.com/r/en-US/ug1414-vitis-ai)).
+
+This tutorial assumes the user is familiar with Python3, TensorFlow and has some knowledge of machine learning principles.
 
 
-### Downloading the Design and Setting up the Workspace
 
-This repository should be downloaded to the host machine as a zip file and then unzipped to a folder, or cloned using the ``git clone`` command from a terminal.
+## Setting up the workspace and dataset
 
-Open a linux terminal, cd into the repository folder then into the 'files' folder. Start the Vitis AI docker - if you have a GPU in the host system, it is recommended that you use the GPU version of the docker container. If you intend running the model training, you will definitely need the GPU docker container. If you are going to skip the training phase, then the CPU docker container will be sufficient.
+1. Copy the repository by doing either of the following:
 
-As part of the [Setting up the host](https://www.xilinx.com/html_docs/vitis_ai/1_2/jck1570690043273.html) procedure, you will have cloned or downloaded The Vitis AI repository to the host machine. In the Vitis AI folder of that repo there is a shell script called docker_run.sh that will launch the chosen docker container. Open a terminal on the host machine and cd into the enter the following commands (note: start *either* the GPU or the CPU docker container, but not both):
+    + Download the repository as a ZIP file to the host machine, and then unzip the archive.
+    + From a terminal, use the `git clone` command.
+
+2. Download the Kaggle Dobble dataset.
+
+    + Go to the [Kaggle website](https://www.kaggle.com/datasets/grouby/dobble-card-images) and register a new account if necessary.
+    + Download the [dataset](https://www.kaggle.com/datasets/grouby/dobble-card-images).
+    + Move dobble-card-images.zip into the `files` folder in the design repository, which is the same folder that contains the python (`.py`) and shell (`.sh`) scripts.
+
+    The Kaggle Dobble dataset consists of 500+ images of varying dimensions, divided into 58 classes. Each image is intrinsically labelled or classified by its filename (for example, `01.tif`).
+
+    There is a set of unlabelled images which were part of the original Kaggle dogs-vs-cats challenge, but we will not use it in this tutorial. Only the 500+ images that are contained in the `train.zip` archive will be used.
+
+3. Open a linux terminal, `cd` to the repository folder, and then `cd` to the `files` folder.
+   
+4. Start the Vitis AI GPU docker:
+
+     ```shell
+     # navigate to tutorial folder
+     cd <path_to_tutorial>/files
+
+     # to start GPU docker container
+     ./docker_run.sh xilinx/vitis-ai-gpu:latest
+     ```
+
+  The docker container will start and after accepting the license agreement, you should see something like this in the terminal:
+
+     ```shell
+     ==========================================
+      
+     __      ___ _   _                   _____
+     \ \    / (_) | (_)            /\   |_   _|
+      \ \  / / _| |_ _ ___ ______ /  \    | |
+       \ \/ / | | __| / __|______/ /\ \   | |
+        \  /  | | |_| \__ \     / ____ \ _| |_
+         \/   |_|\__|_|___/    /_/    \_\_____|
+      
+     ==========================================
+     
+     Docker Image Version: 2.0.0.1103   (CPU) 
+     Vitis AI Git Hash: 06d7cbb 
+     Build Date: 2022-01-12
+     
+     For TensorFlow 1.15 Workflows do:
+          conda activate vitis-ai-tensorflow 
+     For Caffe Workflows do:
+          conda activate vitis-ai-caffe 
+     For PyTorch Workflows do:
+          conda activate vitis-ai-pytorch 
+     For TensorFlow 2.6 Workflows do:
+          conda activate vitis-ai-tensorflow2 
+     Vitis-AI /workspace > 
+     ```
+
+>:bulb: *If you get a "Permission Denied" error when starting the docker container, it is almost certainly because the docker_run.sh script is not set to be executable. You can fix this by running the following command:*
+>    
+>    ```shell
+>     chmod +x docker_run.sh
+>    ```
+
+
+Activate the Tensorflow2 python virtual environment with `conda activate vitis-ai-tensorflow2` and you should see the prompt change to indicate that the environment is active:
 
 
 ```shell
-# navigate to the dobble tutorial folder
-cd <path_to_dobble_design>/files
-
-# to start the CPU docker
-./docker_run.sh xilinx/vitis-ai:1.3.411
+Vitis-AI /workspace > conda activate vitis-ai-tensorflow2
+(vitis-ai-tensorflow2) Vitis-AI /workspace > 
 ```
 
-If you have a GPU, you may prefer to use the GPU docker (which you will have to build)
+*The remainder of this README describes each single step to implement the tutorial, however a shell script called run_all.sh is provided which will run the complete flow:*
 
 ```shell
-# to start GPU docker
-./docker_run.sh xilinx/vitis-ai-gpu:latest
+(vitis-ai-tensorflow2) Vitis-AI /workspace > source run_all.sh
 ```
 
-The docker container will start and you should see something like this in the terminal:
+## Step 0 - Converting the dataset images to TFRecords
 
+To run step 0:
 
 ```shell
-==========================================
-
-__      ___ _   _                   _____
-\ \    / (_) | (_)            /\   |_   _|
- \ \  / / _| |_ _ ___ ______ /  \    | |
-  \ \/ / | | __| / __|______/ /\ \   | |
-   \  /  | | |_| \__ \     / ____ \ _| |_
-    \/   |_|\__|_|___/    /_/    \_\_____|
-
-==========================================
-
-Docker Image Version:  1.3.411
-Build Date: 2020-12-25
-VAI_ROOT: /opt/vitis_ai
-
-For TensorFlow Workflows do:
-     conda activate vitis-ai-tensorflow
-For Caffe Workflows do:
-     conda activate vitis-ai-caffe
-For Neptune Workflows do:
-     conda activate vitis-ai-neptune
-For PyTorch Workflows do:
-     conda activate vitis-ai-pytorch
-For TensorFlow 2.3 Workflows do:
-     conda activate vitis-ai-tensorflow2
-For Darknet Optimizer Workflows do:
-     conda activate vitis-ai-optimizer_darknet
-For Caffe Optimizer Workflows do:
-     conda activate vitis-ai-optimizer_caffe
-For TensorFlow 1.15 Workflows do:
-     conda activate vitis-ai-optimizer_tensorflow
-For LSTM Workflows do:
-     conda activate vitis-ai-lstm
-Vitis-AI /workspace >
+(vitis-ai-tensorflow2) Vitis-AI /workspace > python -u images_to_tfrec.py 2>&1 | tee tfrec.log
 ```
 
-Now run the environment setup script:  `source ./0_setenv.sh`
+To speed up training, the JPEG images of the dogs-vs-cats dataset will be converted into the TFRecord format. The `images_to_tfrec.py` script will do the following:
 
-This will set up all the environment variables (..mainly pointers to folder and files..) most of which you can edit as required. It will also create the folders for the logs and the trained keras checkpoint.
++ Unzip the dogs-vs-cats.zip archive into the folder set by the `--dataset_dir` argument.
++ Split the images into the train and test datasets, ensuring a balance between classes.
++ Convert each image and label into a TFRecord. The TFRecord files are written into .tfrecord files in the folder deefined by the `--tfrec_dir` argument.
++ Move the test images to a separate folder for later use on the target.
 
-The 0_setenv.sh script also activates the 'vitis-ai-tensorflow' TensorFlow conda environment, so you should now see that the terminal prompt looks like this:
+Each TFRecord has five fields that are defined by the feature dictionary:
 
+```python
+# features dictionary
+feature_dict = {
+  'label' : _int64_feature(label),
+  'height': _int64_feature(image_shape[0]),
+  'width' : _int64_feature(image_shape[1]),
+  'chans' : _int64_feature(image_shape[2]),
+  'image' : _bytes_feature(image)
+}
+```
+
+The label is obtained by looking at the first part of the image file name and assigning either '0' for dog or '1' for cat:
+
+```python
+class_name,_ = img.split('.',1)
+if class_name == 'dog':
+  label = 0
+else:
+  label = 1
+```
+
+Each JPEG image file is read into a TensorFlow string (tf.string) and its shape is obtained from the JPEG header - this avoids having to JPEG decode the image which means the script runs faster and also the TFRecord files are more compact:
+
+```python
+# read the JPEG source file into a tf.string
+image = tf.io.read_file(filePath)
+
+# get the shape of the image from the JPEG file header
+image_shape = tf.io.extract_jpeg_shape(image, output_type=tf.dtypes.int32, name=None)
+```
+
+The number of image/label pairs in each .tfrecord file is defined by the `--img_shard` argument.
+
+
+
+## Step 1 - Training
+
+To run step 1:
 
 ```shell
-(vitis-ai-tensorflow) Vitis-AI /workspace$
+(vitis-ai-tensorflow2) Vitis-AI /workspace > python -u train.py 2>&1 | tee train.log
 ```
 
-### Step 0: Download the Dobble dataset from Kaggle
+During training, the TFRecord files are read into the tf.data pipeline by the `input_fn_trn` function defined in `dataset_utils.py`. This function finds all TFRecord files whose names match the pattern train_*.tfrecord and creates a tf.data.Dataset object. The function also includes all the image pre-processing (resizing and random cropping, augmentation and normalization):
 
-Download the dataset archive (dobble-card-images.zip) from Kaggle.
 
-[Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
+```python
+def input_fn_trn(tfrec_dir,batchsize,height,width):
+    '''
+    Dataset creation and augmentation for training
+    '''
+    tfrecord_files = tf.data.Dataset.list_files('{}/train_*.tfrecord'.format(tfrec_dir), shuffle=True)
+    dataset = tf.data.TFRecordDataset(tfrecord_files)
+    dataset = dataset.map(parser, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.map(lambda x,y: resize_crop(x,y,h=height,w=width), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.batch(batchsize, drop_remainder=False)
+    dataset = dataset.map(augment, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.map(normalize, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.repeat()
+    return dataset
+```
 
-Extract the archive under the files directory:
+
+The validation phase uses the `input_fn_test` function which will make a dataset from all TFRecord files which match the glob pattern test_*.tfrecord. Note how there is no augmentation, only resizing and normalization and the dataset does not repeat:
+
+
+```python
+def input_fn_test(tfrec_dir,batchsize,height,width):
+    '''
+    Dataset creation and augmentation for test
+    '''
+    tfrecord_files = tf.data.Dataset.list_files('{}/test_*.tfrecord'.format(tfrec_dir), shuffle=False)
+    dataset = tf.data.TFRecordDataset(tfrecord_files)
+    dataset = dataset.map(parser, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.map(lambda x,y: resize_crop(x,y,h=height,w=width), num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.batch(batchsize, drop_remainder=False)
+    dataset = dataset.map(normalize, num_parallel_calls=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+    return dataset
+```
+
+The complete list of command line arguments of `train.py` are as follows:
+
+|Argument|Default|Description|
+|:-------|:-----:|:----------|
+|--input_height|200|Input images are resized to input_height x input_width|
+|--input_width|250|Input images are resized to input_height x input_width|
+|--input_chan|3|Number of channels in input image - leave at default|
+|--tfrec_dir|tfrecords|Folder containing TFRecord files|
+|--batchsize|50|Batchsize used in training and validation - adjust for memory capacity of your GPU(s)|
+|--epochs|250|Number of training epochs|
+|--learnrate|0.001|Initial learning rate for optimizer|
+|--chkpt_dir|float_model|Folder where trained checkpoint will be written|
+|--tboard|tb_logs|Folder where TensorBoard logs will be written|
+
+
+## Step 2 - Quantization
+
+To run step 2:
 
 ```shell
-<path_to_dobble_design>/files
+(vitis-ai-tensorflow2) Vitis-AI /workspace > python -u quantize.py --evaluate 2>&1 | tee quantize.log
 ```
 
-Rename the directory and ensure the dobble dataset is located as follows:
+The Xilinx DPU family of ML accelerators execute CNN models that have their parameters in integer format so we must convert the trained, floating-point checkpoint into a fixed-point integer checkpoint - this process is known as quantization.
+
+The `quantize.py` script will do the following:
+
++ Make a folder (default name is quant_model) to contain the quantized model in HDF5 format.
++ Create a tf.data.Dataset object using the `input_fn_quant` defined in `dataset_utils.py`
+     + this tf.data.Dataset is used to provide images for calibration.
++ Run the quantization process using the Vitis-AI quantizer plug-in for TensorFlow2.
++ Save the quantized HDF5 model to the folder indicated by the `--quant_model` command line argument.
++ If the `--evaluate` command line argument is included, then the `quantize.py` script will evaluate the accuracy of the quantized model using the same test dataset that was used for validation during training.
+
+
+## Step 3 - Compiling for the target
+
+To run step 3, run the `source compile.sh` with one of the target boards as a command line argument, for example:
 
 ```shell
-<path_to_dobble_design>/files/dobble_dataset
-<path_to_dobble_design>/files/dobble_dataset/dobble_deck01_cards_57
-...
-<path_to_dobble_design>/files/dobble_dataset/dobble_deck10_cards_55
-<path_to_dobble_design>/files/dobble_dataset/dobble_test01_cards
-<path_to_dobble_design>/files/dobble_dataset/dobble_test02_cards
-...
+(vitis-ai-tensorflow2) Vitis-AI /workspace > source compile.sh zcu102
 ```
 
-### Step 1: Training Your Model
-
-:pushpin: Training takes a considerable time, between 8-12 hours depending on the GPU. You can alternatively:
-
-+ Skip the training phase altogether and use the pretrained Keras checkpoint available in keras_model.zip. In this case, you can copy the k_model.h5 file inside this zip archive to the ./files/build/keras_model folder. You can then skip the remaining parts of Step 1 and go directly to Step 2.
+The script also supports `zcu104`,`vck190` and `u50`, as a command line arguments to target other boards. The `compile.sh` shell script will compile the quantized model and create an .xmodel file which contains the instructions and data to be executed by the DPU.
 
 
-To run step 1: ``source ./1_train.sh``
+## Step 4 - Running the application on the target
 
-The training process is performed by the dobble_tutorial.py Python script.
+To prepare the images, xmodel and application code for copying to the selected target, run the following command:
 
-For more information on the training, please refer to the following hackster.io project:
+```shell
+(vitis-ai-tensorflow2) Vitis-AI /workspace > python -u target.py -m compiled_zcu102/customcnn.xmodel -t target_zcu102 2>&1 | tee target_zcu102.log
+```
 
-[Hackster - Training the Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
+The `target.py` script will do the following:
 
-
-After training has finished, the trained Keras checkpoint will be found in the ./files/build/keras_model folder as an HDF5 file called k_model.h5.
-
-*Note: Any error messages relating to CUPTI can be ignored.*
-
-
-### Step 2: Converting the Keras HDF5 Checkpoint to a TensorFlow Frozen Graph
-
-To run step 2: ``source ./2_keras2tf.sh``
-
-The Vitis AI tools cannot operate directly on Keras checkpoints and require a TensorFlow compatible frozen graph as the input format. The 2_keras2tf.sh shell script will create the frozen graph in two steps:
-
-1. The HDF5 file is converted to a TensorFlow checkpoint.
-2. The TensorFlow checkpoint is converted to a 'frozen graph' in binary protobuf format.
-
-The output .pb file is generally known as a 'frozen graph' since all variables are converted into constants and graph nodes associated with training such as the optimizer and loss functions are stripped out.
-
-After this step is completed, there should be a protobuf file called 'frozen_graph.pb' in the ./files/build/freeze folder.
++ Resize the test images and copy them to the target folder.
+     + the number of images is set by the `--num_images` command line argument which defaults to 1000.
++ Copy the compiled model to the target folder.
++ Copy the Python application code to the target folder.
 
 
-### Step 3: Evaluating the Frozen Graph
+### ZCU102
 
-To run step 3: ``source ./3_eval_frozen.sh``
+The entire `target_zcu102` folder should be copied to the ZCU102. Copy it to the /home/root folder of the flashed SD card, this can be done in one of several ways:
 
-This is an optional step as the frozen graph is still in floating-point format and should give almost identical accuracy results as the evaluation done during the training phase (step 1). The 1.2K images from Dobble test02 images are passed through the frozen model and the accuracy is calculated.
+1. Direct copy to SD Card:
 
+  + If the host machine has an SD card slot, insert the flashed SD card and when it is recognised you will see two volumes, BOOT and ROOTFS. Navigate into the ROOTFS and then into the /home folder.  Make the ./root folder writeable by issuing the command ``sudo chmod -R 777 root`` and then copy the entire `target_zcu102` folder from the host machine into the /home/root folder of the SD card.
 
-### Step 4: Quantizing the Frozen Graph
+  + Unmount both the BOOT and ROOTFS volumes from the host machine and then eject the SD Card from the host machine.
 
-To run step 4: ``source ./4_quant.sh``
+2. With scp command:
 
-The DPU accelerator IP executes all calculations in 8bit integer format, so we must quantize our floating-point frozen graph. This is done by the Vitis AI tools, in particular by the 'vai_q_tensorflow quantize' command. This command can be seen in the 4_quant.sh script and has several arguments that we must provide values for:
+  + If the target evaluation board is connected to the same network as the host machine, the `target_zcu102` folder can be copied using scp.
 
-
-| Argument               | Description                                                    |
-| ---------------------- | -------------------------------------------------------------- |
-| `--input_frozen_graph` | path and name of the input  .pb frozen graph                   |
-| `--input_fn`           | Name of input function used in calibration pre-processing      |
-| `--output_dir`         | Name of the output folder where the quantized models are saved |
-| `--input_nodes`        | Name(s) of the input nodes                                     |
-| `--output_nodes`       | Name(s) of the output nodes                                    |
-| `--input_shapes`       | Shape(s) of the input nodes                                    |
-| `--calib_iter`         | Number of calibration iterations                               |
-
-
-*Note: Any error messages relating to ./bin/ptxas can be ignored.*
-
-Most of the arguments are self-explanatory but special mention needs to be made of --input_fn and --calib_iter.
-
-We require a sample set of data to calibrate the quantization process. This data will be passed through the model in one forward pass and so must be processed in exactly the same way as the data is pre-processed in training...the function pointed to be the --input_fn argument will need to contain all of the pre-processing steps.
-
-The images for the calibration are created by the tf_gen_images.py python script and then stored in the ./files/build/quantize/images folder along with a text file which lists those images. This folder will be deleted after quantization is finished to reduce occupied disk space.
-
-The image_input_fn.py Python script contains a single function called calib_input (..hence we set --input_fn to image_input_fn.calib_input in the 4_quant.sh shell script..) which opens the images with OpenCV, and then normalizes them to have all pixels in the range 0 to 1.0, exactly as was done in training and evaluation.
-
-The number of images generated for use in calibration is set by the CALIB_IMAGES environment variable in the 0_setenv.sh script. Care should be taken that the number of calibration iterations (--calib_iter) multiplied by the calibration batch size (set in the image_input_fn.py script) does not exceed the total number of available images (CALIB_IMAGES).
-
-Once quantization has completed, we will have the quantized deployment model (deploy_model.pb) and the evaluation model (quantize_eval_model.pb) in the ./files/build/quantize folder.
-
-
-### Step 5: Evaluating the Quantized Model
-
-To run step 5: ``source ./5_eval_quant.sh``
-
-This is an optional, but *highly* recommended step. The conversion from a floating-point model where the values can have a very wide dynamic range to an 8bit model where values can only have one of 256 values almost inevitably leads to a small loss of accuracy. We use the quantized evaluation model to see exactly how much impact the quantization has had.
-
-The exact same Python script, eval_graph.py, that was used to evaluate the frozen graph is used to evaluate the quantized model.
-
-
-### Step 6: Compiling the Quantized Model
-
-To run step 6: ``source ./6_compile.sh``
-
-The DPU IP is a soft-core IP whose only function is to accelerate the execution of convolutional neural networks. It is a co-processor which has its own instruction set - those instructions are passed to the DPU in Xmodel file format.
-
-The Vitis AI compiler will convert, and optimize where possible, the quantized deployment model to a set of micro-instructions and then output them in an Xmodel file.
-
-The generated instructions are specific to the particular configuration of the DPU. The DPU's parameters are contained in a arch.json file which needs to be created for each target board - see the [Vitis AI User Guide](https://www.xilinx.com/html_docs/vitis_ai/1_3/zmw1606771874842.html) for details.
-
-In the specific case of the Ultra96-V2, the arch.json file is provided in the B2304_LR directory and its location is passed to the vai_c_tensorflow command via the --arch argument.
-
-Once compile is complete, the Xmodel file will be stored in the ./build/compile folder.
-
-
-### Step 7: Running the Application on the Board
-
-To run step 7: ``source ./7_make_target.sh``
-
-
-This final step will copy all the required files for running on the board into the ./build/target folder. The entire target folder will be copied to the Ultra96-V2's SD card.
-
-Copy it to the /home/root folder of the flashed SD card, this can be done with ```scp``` command.
-
-  + If the Ultra96-V2 is connected to the same network as the host machine, the target folder can be copied using scp.
-
-  + The command will be something like ``scp -r ./target root@192.168.1.227:~/``  assuming that the Ultra96-V2 IP address is 192.168.1.227 - adjust this and the path to the target folder as appropriate for your system.
+  + The command will be something like ``scp -r ./build/target_zcu102 root@192.168.1.227:~/.``  assuming that the target board IP address is 192.168.1.227 - adjust this as appropriate for your system.
 
   + If the password is asked for, insert 'root'.
 
 
-With the target folder copied to the SD Card and the Ultra96-V2 booted, you can issue the command for launching the application - note that this done on the Ultra96-V2 board, not the host machine, so it requires a connection to the Ultra96-V2 such as a serial connection to the UART or an SSH connection via Ethernet.
+With the `target_zcu102` folder copied to the SD Card and the evaluation board booted, you can issue the command for launching the application - note that this done on the target evaluation board, not the host machine, so it requires a connection to the board such as a serial connection to the UART or an SSH connection via Ethernet.
 
-By default, the serial console will output a significant quantity of verbose messages related to the Vitis-AI runtime.  This can be disabled with the following command:
+The application can be started by navigating into the `target_zcu102` folder on the evaluation board and then issuing the command ``python3 app_mt.py``. The application will start and after a few seconds will show the throughput in frames/sec, like this:
 
-```shell
-root@u96v2-sbc-base-2020-2:~# dmesg -D
-```
 
-It is recommended to run the DPU optimization script, and set the monitor resolution (if connected) to 640x480:
 
 ```shell
-root@u96v2-sbc-base-2020-2:~# cd dpu_sw_optimize/zynqmp
-root@u96v2-sbc-base-2020-2:~/dpu_sw_optimize/zynqmp# ./zynqmp_dpu_optimize.sh
-
-root@u96v2-sbc-base-2020-2:~# export DISPLAY=:0.0
-root@u96v2-sbc-base-2020-2:~# xrandr --output DP-1 --mode 640x480
-```
-
-
-The application can be started by navigating into the target folder and then issuing the command ``python3 app_mt.py``. The application will start and after a few seconds will show the throughput in frames/sec.
-
-```shell
-root@u96v2-sbc-base-2020-2:~/target# python3 app_mt.py
+root@xilinx-zcu102-2021_1:~# cd target_zcu102/
+root@xilinx-zcu102-2021_1:~/target_zcu102# python3 app_mt.py
 Command line options:
  --image_dir :  images
  --threads   :  1
- --model     :  model_dir/dobble.xmodel
-Pre-processing 500 images...
+ --model     :  customcnn.xmodel
+------------------------------------
+Pre-processing 1000 images...
 Starting 1 threads...
-FPS=75,51, total frames = 500 , time=6.6213 seconds
-output buffer length: 500
-Correct: 489 Wrong: 11 Accuracy: 0.978
+------------------------------------
+Throughput=377.79 fps, total frames = 1000, time=2.6470 seconds
+Post-processing 1000 images..
+Correct:960, Wrong:40, Accuracy:0.9600
+------------------------------------
 ```
 
-For better throughput, the number of threads can be increased like this:
+
+The throughput can be improved by increasing the number of threads with the `--threads` option:
+
 
 ```shell
-root@u96v2-sbc-base-2020-2:~/target# python3 app_mt.py -t 5
+root@xilinx-zcu102-2021_1:~/target_zcu102# python3 app_mt.py --threads 8
 Command line options:
  --image_dir :  images
- --threads   :  5
- --model     :  model_dir/dobble.xmodel
-Pre-processing 500 images...
-Starting 5 threads...
-FPS=98.38, total frames = 500 , time=5.0821 seconds
-output buffer length: 500
-Correct: 489 Wrong: 11 Accuracy: 0.978
+ --threads   :  8
+ --model     :  customcnn.xmodel
+------------------------------------
+Pre-processing 1000 images...
+Starting 8 threads...
+------------------------------------
+Throughput=1055.84 fps, total frames = 1000, time=0.9471 seconds
+Post-processing 1000 images..
+Correct:960, Wrong:40, Accuracy:0.9600
+------------------------------------
 ```
+### ZCU104
 
-
-## Accuracy & Performance Results
-
-The floating-point post-training and frozen graph evaluations can be compared to the INT8 post-quantization model and actual results obtained by the hardware model running on the Ultra96-V2 board:
-
-
-| Post-training (Float) | Frozen Graph (Float) | Quantized Model (INT8) | Hardware model (INT8) |
-| :-------------------: | :------------------: | :--------------------: | :-------------------: |
-|        99.23%         |        99.25%        |         99.58%         |        97.80%         |
-
-
-The approximate throughput (in frames/sec) for various batch sizes is shown below:
-
-
-| Threads | Throughput (fps) |
-| :-----: | :--------------: |
-|    1    |       72.43      |
-|    2    |      101.26      |
-|    3    |      100.74      |
-|    4    |       97.45      |
-|    5    |       98.38      |
-
-
-## Acknowledgment
-
-This implementation is based on the DenseNet example from Xilinx:
-
-[Module 4 - CIFAR10 Classification using Vitis AI and TensorFlowDesign Tutorials](https://github.com/Xilinx/Vitis-In-Depth-Tutorial/tree/master/Machine_Learning/Introduction/03-Basic/Module_4)
+The procedure is identical to that described above for the ZCU102 board - just use either the `target_zcu104` folder instead of the `target_zcu102` folder.
 
 
 
-# References
 
-## Vitis-AI 1.3 Flow for Avnet Platforms
-This guide provides detailed instructions for targeting the Xilinx Vitis-AI 1.3 flow for Avnet Vitis 2020.2 platforms.
-
-[Hackster - Vitis-AI 1.3 Flow for Avnet Platforms](https://www.hackster.io/AlbertaBeef/vitis-ai-1-3-flow-for-avnet-vitis-platforms-cd0c51)
-
-## The Dobble Dataset
-The Dobble dataset, available on kaggle:
-
-[Kaggle - Dobble Card Images](https://www.kaggle.com/grouby/dobble-card-images/data)
-
-## The Dobble Challenge
-Getting started with machine learning for the Dobble card game using TensorFlow.
-
-[Hackster - The Dobble Challenge](https://www.hackster.io/aidventure/the-dobble-challenge-93d57c)
-
-## Training The Dobble Challenge
-Train a machine learning model that can play Dobble (Spot-It) against you. This is part two of The Dobble Challenge.
-
-[Hackster - Training The Dobble Challenge](https://www.hackster.io/aidventure/training-the-dobble-challenge-568854)
-
-
-
-<p align="center"><sup>Copyright&copy; 2021 Avnet</sup></p>
+</hr>
+<p class="sphinxhide" align="center"><sup>Copyright&copy; 2022 Avnet</sup></p>
